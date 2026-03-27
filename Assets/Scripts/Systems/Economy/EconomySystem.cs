@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,6 +10,8 @@ namespace Lingtianlu
 
         private readonly Dictionary<string, int> priceTable = new();
         private readonly Dictionary<string, int> dailySupply = new();
+
+        public event Action<int> GoldEarned;
 
         public int GetPrice(CropDefinition crop)
         {
@@ -24,6 +27,19 @@ namespace Lingtianlu
             }
 
             return price;
+        }
+
+        public int SellCrop(CropDefinition crop, int amount)
+        {
+            if (crop == null || amount <= 0)
+            {
+                return 0;
+            }
+
+            int revenue = GetPrice(crop) * amount;
+            GoldEarned?.Invoke(revenue);
+            RegisterHarvestSupply(new HarvestEvent(crop, amount));
+            return revenue;
         }
 
         public void RegisterHarvestSupply(HarvestEvent harvest)

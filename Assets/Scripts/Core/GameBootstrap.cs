@@ -14,6 +14,7 @@ namespace Lingtianlu
         [SerializeField] private EconomySystem economySystem;
         [SerializeField] private NPCSystem npcSystem;
         [SerializeField] private AlchemySystem alchemySystem;
+        [SerializeField] private InventorySystem inventorySystem;
 
         private void Awake()
         {
@@ -30,6 +31,7 @@ namespace Lingtianlu
 
             cropSystem.Harvested += economySystem.RegisterHarvestSupply;
             cropSystem.Harvested += npcSystem.ReactToHarvest;
+            cropSystem.Harvested += OnHarvestAddInventory;
             alchemySystem.DanCreated += npcSystem.ReactToAlchemy;
         }
 
@@ -47,7 +49,18 @@ namespace Lingtianlu
 
             cropSystem.Harvested -= economySystem.RegisterHarvestSupply;
             cropSystem.Harvested -= npcSystem.ReactToHarvest;
+            cropSystem.Harvested -= OnHarvestAddInventory;
             alchemySystem.DanCreated -= npcSystem.ReactToAlchemy;
+        }
+
+        private void OnHarvestAddInventory(HarvestEvent harvest)
+        {
+            if (inventorySystem == null || harvest.Crop == null)
+            {
+                return;
+            }
+
+            inventorySystem.AddItem(harvest.Crop.CropId, harvest.Amount);
         }
     }
 }
